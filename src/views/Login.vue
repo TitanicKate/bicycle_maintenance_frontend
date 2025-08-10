@@ -1,72 +1,80 @@
 <script setup lang="ts">
 
 import {ref} from "vue";
+import {loginService, registerService} from '../api/user.js'
+import {ElMessage} from "element-plus";
+import {useRoute, useRouter} from 'vue-router'
+import {useTokenStore} from '../stores/token.js'
 
 // 是否为注册
 const isRegister = ref(false)
+const route = useRoute()
+const router = useRouter()
+const tokenStore = useTokenStore()
 
 // 登录数据模型
 const loginData = ref({
   username: '',
   password: '',
+
   confirmPassword: ''
 })
 
-// 导入user.js
-import {loginService, registerService} from '../api/user.js'
-import {ElMessage} from "element-plus";
+// 验证注册数据
+const validateRegister = () => {
+  // 校验用户名
+  if (!loginData.value.username) {
+    ElMessage.error('请输入用户名')
+    return false
+  }
 
-// 导入路由
-import { useRoute, useRouter } from 'vue-router'
-const route = useRoute()
-const router = useRouter()
+  if (loginData.value.username.length < 3 || loginData.value.username.length > 20) {
+    ElMessage.error('用户名长度必须在 3 到 20 个字符之间')
+    return false
+  }
+
+  if (!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(loginData.value.username)) {
+    ElMessage.error('用户名只能以字母开头，可包含字母、数字、下划线或短横线')
+    return false
+  }
+
+  // 校验密码
+  if (!loginData.value.password) {
+    ElMessage.error('请输入密码')
+    return false
+  }
+
+  if (loginData.value.password.length < 6 || loginData.value.password.length > 20) {
+    ElMessage.error('密码长度必须在 6 到 20 个字符之间')
+    return false
+  }
+
+  if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/.test(loginData.value.password)) {
+    ElMessage.error('密码必须包含大小写字母、数字和特殊字符(!@#$%^&*)')
+    return false
+  }
+
+  // 校验确认密码
+  if (!loginData.value.confirmPassword) {
+    ElMessage.error('请再次输入密码')
+    return false
+  }
+
+  if (loginData.value.password !== loginData.value.confirmPassword) {
+    ElMessage.error('两次输入密码不一致!')
+    return false
+  }
+
+  return true
+}
 
 // 提交注册
-const register = async () => {
+const handleRegister = async () => {
+  let isValid = validateRegister()
+  if (!isValid) {
+    return
+  }
   try {
-    // 校验用户名
-    if (!loginData.value.username) {
-      ElMessage.error('请输入用户名')
-      return
-    }
-
-    if (loginData.value.username.length < 3 || loginData.value.username.length > 20) {
-      ElMessage.error('用户名长度必须在 3 到 20 个字符之间')
-      return
-    }
-
-    if (!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(loginData.value.username)) {
-      ElMessage.error('用户名只能以字母开头，可包含字母、数字、下划线或短横线')
-      return
-    }
-
-    // 校验密码
-    if (!loginData.value.password) {
-      ElMessage.error('请输入密码')
-      return
-    }
-
-    if (loginData.value.password.length < 6 || loginData.value.password.length > 20) {
-      ElMessage.error('密码长度必须在 6 到 20 个字符之间')
-      return
-    }
-
-    if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])/.test(loginData.value.password)) {
-      ElMessage.error('密码必须包含大小写字母、数字和特殊字符(!@#$%^&*)')
-      return
-    }
-
-    // 校验确认密码
-    if (!loginData.value.confirmPassword) {
-      ElMessage.error('请再次输入密码')
-      return
-    }
-
-    if (loginData.value.password !== loginData.value.confirmPassword) {
-      ElMessage.error('两次输入密码不一致!')
-      return
-    }
-
     let result = await registerService(loginData.value);
     if (result.status === 200) {
       if (result.data.code === 200) {
@@ -84,7 +92,7 @@ const register = async () => {
 }
 
 // 提交登录
-const login = async () => {
+const handleLogin = async () => {
   if (!loginData.value.username || !loginData.value.password) {
     ElMessage.error("请填写用户名和密码");
     return;
@@ -95,9 +103,9 @@ const login = async () => {
       if (result.data.code === 200) {
         ElMessage.success(result.data.msg);
 
-        localStorage.setItem("token", result.data.token.tokenValue);
-        localStorage.setItem("user", JSON.stringify(result.data.username));
-        router.push("/");
+        tokenStore.setToken(result.data.token.tokenValue);
+
+        await router.push("/");
       } else {
         ElMessage.error(result.data.msg);
       }
@@ -114,7 +122,7 @@ const login = async () => {
     <div class="wrapper">
 
       <!--注册表单-->
-      <form action="#" v-if="isRegister">
+      <form v-if="isRegister">
         <h1>注册</h1>
 
         <div class="input-box">
@@ -135,17 +143,17 @@ const login = async () => {
           <label>确认密码</label>
         </div>
 
-        <button class="btn" @click="register(loginData)">注册</button>
+        <el-button class="btn" @click="handleRegister">注册</el-button>
 
         <div class="signup-link">
           <p>已有账号？
-            <button @click="isRegister = false">登录</button>
+            <el-button @click="isRegister = false">登录</el-button>
           </p>
         </div>
       </form>
 
       <!--登陆表单-->
-      <form action="#" v-if="!isRegister">
+      <form v-if="!isRegister">
         <h1>登录</h1>
 
         <div class="input-box">
@@ -164,7 +172,7 @@ const login = async () => {
           <a onclick="forgotman()" href="#">忘记密码？</a>
         </div>
 
-        <button class="btn" @click="login(loginData)">登录</button>
+        <el-button class="btn" @click="handleLogin">登录</el-button>
 
         <div class="signup-link">
           <p>没有账号？
@@ -180,8 +188,9 @@ const login = async () => {
 <style scoped>
 
 .body {
-  height: 100vh;
-  width: 100vw;
+  height: 1050px;
+  width: 100%;
+  padding: 0;
   margin: 0;
   display: flex;
   align-items: center;

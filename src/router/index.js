@@ -1,11 +1,26 @@
 import {createRouter, createWebHistory} from "vue-router";
 
+import {useTokenStore} from '../stores/token.js'
 import Login from '../views/Login.vue'
-import Home from '../views/Home.vue'
+import Layout from "../views/Layout.vue";
+import Home from '../views/home/Home.vue'
+import Users from "../views/user/Users.vue";
+import Orders from "../views/order/Orders.vue";
+import Resources from "../views/rouseces/Resources.vue";
 
 const routes = [
     {path: '/login', component: Login},
-    {path: '/', component: Home}
+    {
+        path: '/',
+        component: Layout,
+        redirect: '/home',
+        children: [
+            {path: '/home', component: Home},
+            {path: '/orders', component: Orders},
+            {path: '/users', component: Users},
+            {path: '/resources', component: Resources}
+        ]
+    }
 ];
 
 const router = createRouter({
@@ -14,9 +29,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    const token = localStorage.getItem('token');
+    let tokenStore = useTokenStore()
     // 假设 / 等页面需要登录后访问，未登录则跳回登录页
-    if (to.path !== '/login' && !token) {
+    if (to.path !== '/login' && !tokenStore.token) {
         next('/login');
     } else {
         next();
