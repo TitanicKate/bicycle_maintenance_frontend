@@ -97,7 +97,12 @@
         </el-form-item>
         <el-form-item label="角色" prop="role">
           <el-select v-model="form.role" placeholder="请选择角色">
-            <el-option v-for="(role, index) in roleOptions" :key="index" :label="role.label" :value="role.value"></el-option>
+            <el-option
+                v-for="(role, index) in roleOptions"
+                :key="index"
+                :label="role.label"
+                :value="role.value">
+            </el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -112,7 +117,7 @@
 </template>
 
 <script setup>
-import {ref, reactive, onMounted, computed, getCurrentInstance} from 'vue'
+import {ref, reactive, onMounted} from 'vue'
 import {
   ElTable,
   ElTableColumn,
@@ -261,6 +266,7 @@ const handleAddOrUpdateUser = async () => {
   // 表单验证
   await formRef.value.validate().catch(err => {
     console.error(err)
+    ElMessage.error(err.message)
     return Promise.reject(err)
   })
 
@@ -285,12 +291,12 @@ const handleAddOrUpdateUser = async () => {
       let result = await addUserService(form);
       if (result.data.code === 200) {
         dialogVisible.value = false
-        ElMessage.success(result.data.message || '新增成功')
+        ElMessage.success(result.data.message || '添加成功')
         // 新增成功后跳转到最后一页
         currentPage.value = Math.ceil((total.value + 1) / pageSize.value)
         handleGetAllUserList()
       } else {
-        ElMessage.error(result.data.message || '新增失败')
+        ElMessage.error(result.data.message || '添加失败')
       }
     }
   } catch (error) {
@@ -316,7 +322,7 @@ const handleDelete = async (row) => {
 
     const loading = ElLoading.service({
       lock: true,
-      text: '删除中...',
+      text: '正在删除...',
       background: 'rgba(0, 0, 0, 0.7)'
     })
 
@@ -385,7 +391,7 @@ const handleBatchDelete = async () => {
 
     const loading = ElLoading.service({
       lock: true,
-      text: '删除中...',
+      text: '正在删除...',
       background: 'rgba(0, 0, 0, 0.7)'
     })
 

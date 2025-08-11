@@ -17,7 +17,7 @@ export const deleteUserService = (id) => {
 }
 
 export const updateUserService = (userData) => {
-    return request.put(`/users`, userData)
+    return request.put('/users', userData)
 }
 
 export const getUserService = (id) => {
