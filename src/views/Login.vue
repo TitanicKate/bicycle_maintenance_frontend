@@ -188,16 +188,14 @@ const handleLogin = async () => {
 <style scoped>
 
 .body {
-  height: 1050px;
+  height: 100vh;
   width: 100%;
-  padding: 0;
-  margin: 0;
+  padding: 0px;
+  margin: -10px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: url('../assets/Family-country-road.jpg');
-  background-size: cover;
-  background-position: center;
+  background: url('../assets/Family-country-road.jpg') no-repeat center/cover;
 }
 
 .wrapper {

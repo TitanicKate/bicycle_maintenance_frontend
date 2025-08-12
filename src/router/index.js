@@ -7,6 +7,8 @@ import Home from '../views/home/Home.vue'
 import Users from "../views/user/Users.vue";
 import Orders from "../views/order/Orders.vue";
 import Resources from "../views/rouseces/Resources.vue";
+import Evaluation from "../views/evaluation/Evaluation.vue";
+import Market from "../views/market/Market.vue";
 
 const routes = [
     {path: '/login', component: Login},
@@ -18,7 +20,9 @@ const routes = [
             {path: '/home', component: Home},
             {path: '/orders', component: Orders},
             {path: '/users', component: Users},
-            {path: '/resources', component: Resources}
+            {path: '/resources', component: Resources},
+            {path: '/evaluation', component: Evaluation},
+            {path: '/market', component: Market}
         ]
     }
 ];

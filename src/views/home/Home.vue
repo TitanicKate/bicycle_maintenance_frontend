@@ -3,6 +3,275 @@ import {ref} from 'vue';
 import {
   ArrowUp, ArrowDown, Warning, Check, User, Clock
 } from '@element-plus/icons-vue';
+import Echarts from "../../echarts/Echarts.vue";
+
+// 饼图配置
+const pieChartOptions = ref({
+  title: {
+    text: '维修单状态',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item'
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'left'
+  },
+  series: [
+    {
+      name: '状态',
+      type: 'pie',
+      radius: '70%',
+      data: [
+        {value: 1048, name: '未接单'},
+        {value: 735, name: '维修中'},
+        {value: 580, name: '已完成'},
+        {value: 484, name: '已取消'},
+      ],
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
+        }
+      }
+    }
+  ]
+})
+
+// 生成近30天的模拟日期，格式如 '01-01' 等（可根据实际需求调整）
+const generateDates = () => {
+  const dates = [];
+  const now = new Date();
+  for (let i = 29; i >= 0; i--) {
+    const date = new Date(now);
+    date.setDate(now.getDate() - i);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    dates.push(`${month}-${day}`);
+  }
+  return dates;
+};
+
+// 生成模拟维修量数据
+const generateRepairData = () => {
+  return Array.from({length: 30}, () => Math.floor(Math.random() * 50) + 10);
+};
+
+const lineChartOption = ref({
+  tooltip: {
+    trigger: 'axis'
+  },
+  xAxis: {
+    type: 'category',
+    data: generateDates(),
+    axisLabel: {
+      // 若日期显示拥挤，可设置旋转角度
+      rotate: 30,
+      fontSize: 12
+    }
+  },
+  yAxis: {
+    type: 'value',
+    name: '维修量'
+  },
+  series: [
+    {
+      name: '维修量',
+      type: 'line',
+      data: generateRepairData(),
+      smooth: true, // 让折线更平滑
+      lineStyle: {
+        color: '#409EFF' // 自定义折线颜色
+      },
+      itemStyle: {
+        color: '#409EFF' // 自定义折点颜色
+      }
+    }
+  ]
+});
+
+// 柱状图配置
+const barChartOptions = ref({
+  title: {
+    text: '故障类型',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'axis'
+  },
+  xAxis: {
+    type: 'category',
+    data: ['其他故障', '爆胎故障', '刹车故障', '链条故障', '车轮故障']
+  },
+  yAxis: {
+    type: 'value',
+    name: '数量'
+  },
+  series: [
+      {
+        name: '数量',
+        type: 'bar',
+        data: [12, 25, 18, 30, 22],
+        barWidth: '40%'
+      }
+  ]
+})
+
+// 2. 模拟近30天用户数据（可替换为接口数据）
+const generateMockData = () => {
+  const data = []
+  let base = 100 // 初始用户数
+  const trend = [1, 2, 3, 2, 4, 3, 5, 4, 6, 5] // 每日波动趋势
+
+  for (let i = 0; i < 30; i++) {
+    // 模拟用户增长（带波动）
+    const growth = Math.floor(Math.random() * 5) + trend[i % 10]
+    base += growth
+    data.push(base)
+  }
+  return data
+}
+
+const userChartOptions = ref({
+  title: {
+    text: '用户数量',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: { type: 'shadow' }
+  },
+  xAxis: {
+    type: 'category',
+    data: Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
+    axisLabel: {
+      color: '#666',
+      fontSize: 12
+    }
+  },
+  yAxis: {
+    type: 'value',
+    name: '用户数',
+    axisLabel: {
+      color: '#666',
+      fontSize: 12
+    }
+  },
+  series: [
+    {
+      name: '用户增长',
+      type: 'line',
+      data: generateMockData(),
+      smooth: true, // 平滑曲线
+      lineStyle: {
+        color: '#409EFF',
+        width: 2
+      },
+      itemStyle: {
+        color: '#409EFF',
+        borderColor: '#fff',
+        borderWidth: 2
+      },
+      areaStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [
+            { offset: 0, color: 'rgba(64, 158, 255, 0.2)' },
+            { offset: 1, color: 'rgba(64, 158, 255, 0)' }
+          ]
+        }
+      },
+      label: {
+        show: true,
+        position: 'top',
+        color: '#333'
+      }
+    }
+  ],
+  grid: {
+    left: '3%',
+    right: '3%',
+    bottom: '3%',
+    containLabel: true
+  }
+})
+
+// 2. 模拟维修员数据（可替换为接口数据）
+const generateWorkManData = () => {
+  return [
+    { name: '维修员A', work: 28, efficiency: 92 },
+    { name: '维修员B', work: 22, efficiency: 85 },
+    { name: '维修员C', work: 35, efficiency: 95 },
+  ]
+}
+
+// 3. 图表配置
+const workManChartOption = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: { type: 'shadow' }
+  },
+  xAxis: {
+    type: 'value',
+    name: '数量/效率',
+    axisLabel: {
+      color: '#666',
+      fontSize: 12
+    }
+  },
+  yAxis: {
+    type: 'category',
+    data: generateWorkManData().map(item => item.name),
+    axisLabel: {
+      color: '#333',
+      fontSize: 14
+    }
+  },
+  series: [
+    {
+      name: '工作量',
+      type: 'bar',
+      data: generateWorkManData().map(item => item.work),
+      barCategoryGap: '20%',
+      itemStyle: {
+        color: '#5189E6',
+        borderRadius: [6, 0, 0, 6]
+      },
+      label: {
+        show: true,
+        position: 'right',
+        color: '#333'
+      }
+    },
+    {
+      name: '效率',
+      type: 'bar',
+      data: generateWorkManData().map(item => item.efficiency),
+      barCategoryGap: '20%',
+      itemStyle: {
+        color: '#E65189',
+        borderRadius: [6, 0, 0, 6]
+      },
+      label: {
+        show: true,
+        position: 'right',
+        color: '#333'
+      }
+    }
+  ],
+  grid: {
+    left: '10%',
+    right: '15%',
+    bottom: '5%',
+    containLabel: true
+  }
+})
 
 // 模拟数据
 const systemStats = ref({
@@ -310,14 +579,7 @@ const quickActions = [
             <h3>维修单状态分布</h3>
           </div>
           <div class="chart-container">
-            <el-progress type="dashboard" percentage="30" class="status-gauge"/>
-            <div class="status-legend">
-              <div class="legend-item"><span class="color-dot unassigned"></span>未接单: 30%</div>
-              <div class="legend-item"><span class="color-dot repairing"></span>维修中: 25%</div>
-              <div class="legend-item"><span class="color-dot waiting"></span>待取车: 15%</div>
-              <div class="legend-item"><span class="color-dot completed"></span>已完成: 25%</div>
-              <div class="legend-item"><span class="color-dot cancelled"></span>已取消: 5%</div>
-            </div>
+            <Echarts :options="pieChartOptions" height="300px"/>
           </div>
         </el-card>
 
@@ -355,10 +617,7 @@ const quickActions = [
           <div class="card-header">
             <h3>故障类型分布（近30天）</h3>
           </div>
-          <div class="chart-placeholder">
-            <bar-chart3 class="chart-icon"/>
-            <span>柱状图/饼图区域</span>
-          </div>
+          <Echarts :options="barChartOptions" height="300px"/>
         </el-card>
 
         <!-- 2. 维修量趋势 -->
@@ -366,10 +625,7 @@ const quickActions = [
           <div class="card-header">
             <h3>维修量趋势（近30天）</h3>
           </div>
-          <div class="chart-placeholder">
-            <trending-up class="chart-icon"/>
-            <span>折线图区域</span>
-          </div>
+          <Echarts :options="lineChartOption" height="300px"/>
         </el-card>
 
         <!-- 3. 维修员工作量与效率 -->
@@ -377,10 +633,7 @@ const quickActions = [
           <div class="card-header">
             <h3>维修员工作量与效率（近7天）</h3>
           </div>
-          <div class="chart-placeholder">
-            <bar-chart3 class="chart-icon"/>
-            <span>横向条形图区域</span>
-          </div>
+          <Echarts :options="workManChartOption" height="300px"/>
         </el-card>
       </div>
     </section>
@@ -394,10 +647,7 @@ const quickActions = [
           <div class="card-header">
             <h3>用户数据</h3>
           </div>
-          <div class="chart-placeholder">
-            <users class="chart-icon"/>
-            <span>用户增长趋势图表</span>
-          </div>
+          <Echarts :options="userChartOptions"/>
           <div class="top-users">
             <h4>高频用户 TOP5</h4>
             <el-list>
@@ -470,59 +720,11 @@ const quickActions = [
 </template>
 
 <style scoped>
-.layout_container {
-  padding: 0;
-  margin: 0;
-  height: 100vh;
-  width: 100%;
-  display: flex;
-  overflow: hidden;
-}
-
-.layout_aside {
-  background: #f9f9f9;
-  border-right: 1px solid #e5e7eb;
-}
-
-.logo {
-  height: 60px;
-  line-height: 60px;
-  text-align: center;
-  font-size: 18px;
-  font-weight: bold;
-  color: #1890ff;
-  border-bottom: 1px solid #e5e7eb;
-  display: flex;
-  align-items: center;
-}
-
 .logo .bms-logo {
   margin-left: 50px;
   margin-right: 10px;
   width: 30px;
   height: 30px;
-}
-
-.right_area {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.header_area {
-  height: 60px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
-  background: #fff;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.user-dropdown {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
 }
 
 .header_area .el-avatar {
@@ -537,21 +739,6 @@ const quickActions = [
   padding: 20px;
   flex: 1;
   overflow-y: auto;
-}
-
-.footer_area {
-  height: 40px;
-  line-height: 40px;
-  text-align: center;
-  font-size: 12px;
-  color: #666;
-  background: #fff;
-  border-top: 1px solid #e5e7eb;
-}
-
-/* Dashboard Styles */
-.dashboard-section {
-  margin-bottom: 30px;
 }
 
 .section-title {
@@ -726,74 +913,12 @@ const quickActions = [
   padding: 20px 0;
 }
 
-.status-gauge {
-  width: 160px;
-  height: 160px;
-}
-
-.status-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  font-size: 13px;
-}
-
-.color-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 5px;
-}
-
-.color-dot.unassigned {
-  background-color: #faad14;
-}
-
-.color-dot.repairing {
-  background-color: #1890ff;
-}
-
-.color-dot.waiting {
-  background-color: #722ed1;
-}
-
-.color-dot.completed {
-  background-color: #52c41a;
-}
-
-.color-dot.cancelled {
-  background-color: #f5222d;
-}
-
 .stars {
   color: #faad14;
 }
 
 .star-filled {
   fill: currentColor;
-}
-
-.chart-placeholder {
-  height: 200px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background-color: #f9f9f9;
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
-.chart-icon {
-  font-size: 40px;
-  color: #ccc;
-  margin-bottom: 10px;
 }
 
 .top-users {
