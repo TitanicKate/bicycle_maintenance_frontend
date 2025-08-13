@@ -489,7 +489,6 @@ const quickActions = [
             </div>
             <div class="stat-item growth up"
                  v-if="systemStats.avgRepairTime.current < systemStats.avgRepairTime.previous">
-              <arrow-down/>
               提升 {{
                 (systemStats.avgRepairTime.previous - systemStats.avgRepairTime.current).toFixed(1)
               }}{{ systemStats.avgRepairTime.unit }}
@@ -720,20 +719,6 @@ const quickActions = [
 </template>
 
 <style scoped>
-.logo .bms-logo {
-  margin-left: 50px;
-  margin-right: 10px;
-  width: 30px;
-  height: 30px;
-}
-
-.header_area .el-avatar {
-  width: 36px;
-  height: 36px;
-  margin-right: 8px;
-  vertical-align: middle;
-}
-
 .main_area {
   background: #f5f7fa;
   padding: 20px;
@@ -767,6 +752,7 @@ const quickActions = [
 }
 
 .stat-card {
+  height: 240px;
   border-radius: 20px;
   transition: all 0.3s ease;
 }

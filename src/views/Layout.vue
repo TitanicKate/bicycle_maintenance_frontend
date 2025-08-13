@@ -34,23 +34,27 @@ const logout = () => {
           <span>首页</span>
         </el-menu-item>
         <el-menu-item index="/orders">
-          <el-icon><Bicycle /></el-icon>
+          <el-icon><Bicycle/></el-icon>
           <span>维修单管理</span>
         </el-menu-item>
         <el-menu-item index="/users">
-          <el-icon><User /></el-icon>
+          <el-icon><User/></el-icon>
           <span>用户管理</span>
+        </el-menu-item>
+        <el-menu-item index="/announcement">
+          <el-icon><ChatLineRound /></el-icon>
+          <span>公告管理</span>
         </el-menu-item>
         <el-menu-item index="/resources">
           <el-icon><Tools/></el-icon>
           <span>资源管理</span>
         </el-menu-item>
         <el-menu-item index="/evaluation">
-          <el-icon><Star /></el-icon>
-          <span>评价管理</span>
+          <el-icon><Star/></el-icon>
+          <span>评价信息</span>
         </el-menu-item>
         <el-menu-item index="/market">
-          <el-icon><Place /></el-icon>
+          <el-icon><Place/></el-icon>
           <span>交易市场</span>
         </el-menu-item>
       </el-menu>
@@ -63,7 +67,7 @@ const logout = () => {
         <div>当前用户：<strong>管理员</strong></div>
         <el-dropdown>
           <span class="user-dropdown">
-            <el-avatar src="https://picsum.photos/id/1005/200/200"/>
+            <el-avatar src="https://picsum.photos/id/1005/200/200" style="margin-right: 20px"/>
             <span>设置</span>
             <el-icon><arrow-down/></el-icon>
           </span>
@@ -139,7 +143,7 @@ const logout = () => {
 }
 
 .logo .bms-logo {
-  margin-left: 50px;
+  margin-left: 30px;
   margin-right: 10px;
   width: 30px;
   height: 30px;

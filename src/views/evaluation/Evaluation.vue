@@ -1,28 +1,44 @@
 <template>
   <el-card class="evaluation-manage">
-    <!-- 查询区域，简单示例，可扩展按时间、订单等查询 -->
+    <!-- 查询区域 -->
     <el-form :model="searchForm" inline label-width="80px" class="search-form">
-      <el-form-item label="内容">
+      <el-form-item label="评价内容">
         <el-input v-model="searchForm.content" placeholder="输入评价内容查询"></el-input>
       </el-form-item>
+<!--      <el-form-item label="订单ID">-->
+<!--        <el-input v-model="searchForm.orderId" placeholder="输入订单ID查询"></el-input>-->
+<!--      </el-form-item>-->
+      <el-form-item label="用户ID">
+        <el-input v-model="searchForm.userId" placeholder="输入用户ID查询"></el-input>
+      </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="handleSearch">查询</el-button>
+        <el-button type="primary" @click="handleSearch" :loading="searchLoading">查询</el-button>
         <el-button @click="resetSearch">重置</el-button>
       </el-form-item>
     </el-form>
+
     <!-- 评价表格 -->
-    <el-table :data="tableData" border style="width: 100%" :loading="loading">
+    <el-table
+        :data="filterData"
+        border
+        style="width: 100%"
+        v-loading="tableLoading"
+        element-loading-text="加载中..."
+    >
       <el-table-column prop="id" label="评价ID" width="100" align="center"></el-table-column>
       <el-table-column prop="content" label="评价内容" align="center"></el-table-column>
-      <el-table-column prop="create_time" label="创建时间" align="center" width="200">
-        <template #default="scope">
-          {{ formatDateTime(scope.row.create_time) }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="order_id" label="订单ID" width="100" align="center"></el-table-column>
+      <el-table-column
+          prop="createTime"
+          label="创建时间"
+          align="center"
+          width="240"
+          :formatter="formatTime"
+      ></el-table-column>
+      <el-table-column prop="orderId" label="订单ID" width="100" align="center"></el-table-column>
       <el-table-column prop="score" label="评分" width="80" align="center"></el-table-column>
-      <el-table-column prop="user_id" label="用户ID" width="100" align="center"></el-table-column>
+      <el-table-column prop="userId" label="用户ID" width="100" align="center"></el-table-column>
     </el-table>
+
     <!-- 分页 -->
     <el-pagination
         @size-change="handleSizeChange"
@@ -38,93 +54,132 @@
 </template>
 
 <script setup>
-import {ref, reactive, onMounted, computed} from 'vue';
-import {ElTable, ElTableColumn, ElForm, ElFormItem, ElInput, ElButton, ElPagination, ElLoading} from 'element-plus';
-// 模拟接口请求，实际项目中替换为真实的接口调用（比如 axios 请求后端接口）
-const mockApi = {
-  getEvaluations: (params) => {
-    return new Promise((resolve) => {
-      // 模拟返回数据，这里简单构造，实际根据后端接口返回调整
-      const mockData = {
-        total: 50,
-        list: Array.from({length: params.pageSize}).map((_, index) => {
-          const baseIndex = (params.page - 1) * params.pageSize + index + 1;
-          return {
-            id: baseIndex,
-            content: `这是第${baseIndex}条评价内容`,
-            create_time: new Date().getTime() - (Math.random() * 1000 * 60 * 60 * 24 * 7), // 模拟一周内的时间
-            order_id: baseIndex,
-            score: Math.floor(Math.random() * 6), // 0 - 5 随机评分
-            user_id: baseIndex
-          };
-        })
-      };
-      resolve(mockData);
-    });
+import { ref, reactive, onMounted } from 'vue';
+import {
+  ElTable,
+  ElTableColumn,
+  ElForm,
+  ElFormItem,
+  ElInput,
+  ElButton,
+  ElPagination
+} from 'element-plus';
+import { ElMessage, ElLoading } from 'element-plus';
+
+// 引入评价API服务
+import {
+  getAllEvaluationService
+} from "../../api/evaluation.js";
+
+// 响应式数据
+const filterData = ref([]); // 表格展示数据
+const allEvaluationData = ref([]); // 全量数据缓存
+const searchForm = reactive({
+  content: '',
+  // orderId: '',
+  userId: ''
+}); // 查询表单
+const currentPage = ref(1); // 当前页码
+const pageSize = ref(10); // 每页条数
+const total = ref(0); // 总条数
+const tableLoading = ref(false); // 表格加载状态
+const searchLoading = ref(false); // 查询按钮加载状态
+const searchTimer = ref(null); // 防抖计时器
+
+onMounted(() => {
+  handleGetAllEvaluationList();
+});
+
+// 获取全量评价数据
+const handleGetAllEvaluationList = async () => {
+  tableLoading.value = true;
+  try {
+    const result = await getAllEvaluationService();
+    if (result.data.code === 200) {
+      allEvaluationData.value = result.data.data || [];
+      handleLocalSearch(); // 触发本地筛选
+    } else {
+      ElMessage.error(result.data.message || '获取评价列表失败');
+    }
+  } catch (error) {
+    ElMessage.error('获取评价列表失败，请重试');
+    console.error(error);
+  } finally {
+    tableLoading.value = false;
   }
 };
 
-const tableData = ref([]);
-const searchForm = reactive({
-  content: ''
-});
-const currentPage = ref(1);
-const pageSize = ref(10);
-const total = ref(0);
-const loading = ref(false);
+// 本地筛选处理
+const handleLocalSearch = () => {
+  // 基础筛选逻辑
+  let filtered = allEvaluationData.value.filter(item => {
+    const contentMatch = searchForm.content
+        ? item.content.includes(searchForm.content)
+        : true;
+    // const orderIdMatch = searchForm.orderId
+    //     ? item.orderId.toString().includes(searchForm.orderId.toString())
+    //     : true;
+    const userIdMatch = searchForm.userId
+        ? item.userId.toString().includes(searchForm.userId.toString())
+        : true;
+    return contentMatch && userIdMatch;
+  });
 
-onMounted(() => {
-  fetchData();
-});
+  // 更新总条数
+  total.value = filtered.length;
 
-// 获取评价数据
-const fetchData = async () => {
-  loading.value = true;
-  const params = {
-    page: currentPage.value,
-    pageSize: pageSize.value,
-    content: searchForm.content
-  };
-  const res = await mockApi.getEvaluations(params);
-  tableData.value = res.list;
-  total.value = res.total;
-  loading.value = false;
+  // 处理分页
+  const startIndex = (currentPage.value - 1) * pageSize.value;
+  const endIndex = startIndex + pageSize.value;
+  filterData.value = filtered.slice(startIndex, endIndex);
 };
 
 // 查询
 const handleSearch = () => {
-  currentPage.value = 1;
-  fetchData();
+  searchLoading.value = true;
+  currentPage.value = 1; // 查询时重置页码
+  handleLocalSearch();
+  searchLoading.value = false;
 };
 
 // 重置查询条件
 const resetSearch = () => {
   searchForm.content = '';
+  searchForm.orderId = '';
+  searchForm.userId = '';
   handleSearch();
 };
 
 // 每页条数改变
 const handleSizeChange = (val) => {
   pageSize.value = val;
-  fetchData();
+  currentPage.value = 1;
+  handleLocalSearch();
 };
 
 // 当前页码改变
 const handleCurrentChange = (val) => {
   currentPage.value = val;
-  fetchData();
+  handleLocalSearch();
 };
 
-// 格式化时间，将时间戳转为可读的日期时间格式，这里假设 create_time 是时间戳（如果是数据库的 datetime ，后端返回时注意处理）
-const formatDateTime = (timestamp) => {
-  const date = new Date(timestamp);
+// 格式化时间
+const formatTime = (row, column) => {
+  const timeValue = row[column.property]
+  if (!timeValue) return '';
+
+  const date = new Date(timeValue);
+  // 处理无效日期的情况
+  if (isNaN(date.getTime())) return '';
+
   const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const hour = date.getHours().toString().padStart(2, '0');
-  const minute = date.getMinutes().toString().padStart(2, '0');
-  const second = date.getSeconds().toString().padStart(2, '0');
-  return `${year}-${month}-${day} ${hour}:${minute}:${second}`;
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+
+  return `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
 };
 </script>
 
