@@ -2,19 +2,22 @@
 import {ArrowDown} from '@element-plus/icons-vue';
 
 import {useRouter, useRoute} from "vue-router";
-import useTokenStore from '../stores/token';
+import useUserStore from "../stores/user";
 import {ElMessage} from "element-plus";
+import {ref} from "vue";
 
 const router = useRouter();
 const route = useRoute();
-const token = useTokenStore();
+const userStore = useUserStore();
 
 const currentRoutePath = route.path
 
+const goToPersonalSetting = () => {
+  router.push('/personalSetting');
+};
+
 const logout = () => {
-  // 模拟登出操作
-  token.clearToken()
-  localStorage.removeItem('token');
+  userStore.logout();
   router.push('/login');
   ElMessage.success('退出成功')
 };
@@ -30,31 +33,45 @@ const logout = () => {
       </div>
       <el-menu router :default-active="currentRoutePath" class="custom_menu">
         <el-menu-item index="/home">
-          <el-icon><House/></el-icon>
+          <el-icon>
+            <House/>
+          </el-icon>
           <span>首页</span>
         </el-menu-item>
         <el-menu-item index="/orders">
-          <el-icon><Bicycle/></el-icon>
+          <el-icon>
+            <Bicycle/>
+          </el-icon>
           <span>维修单管理</span>
         </el-menu-item>
         <el-menu-item index="/users">
-          <el-icon><User/></el-icon>
+          <el-icon>
+            <User/>
+          </el-icon>
           <span>用户管理</span>
         </el-menu-item>
         <el-menu-item index="/announcement">
-          <el-icon><ChatLineRound /></el-icon>
+          <el-icon>
+            <ChatLineRound/>
+          </el-icon>
           <span>公告管理</span>
         </el-menu-item>
         <el-menu-item index="/resources">
-          <el-icon><Tools/></el-icon>
+          <el-icon>
+            <Tools/>
+          </el-icon>
           <span>资源管理</span>
         </el-menu-item>
         <el-menu-item index="/evaluation">
-          <el-icon><Star/></el-icon>
+          <el-icon>
+            <Star/>
+          </el-icon>
           <span>评价信息</span>
         </el-menu-item>
         <el-menu-item index="/market">
-          <el-icon><Place/></el-icon>
+          <el-icon>
+            <Place/>
+          </el-icon>
           <span>交易市场</span>
         </el-menu-item>
       </el-menu>
@@ -64,19 +81,17 @@ const logout = () => {
     <el-container class="right_area">
       <!-- 头部区域 -->
       <el-header class="header_area">
-        <div>当前用户：<strong>管理员</strong></div>
+        <div>当前用户：<strong>{{ userStore.userInfo.name }}</strong></div>
+        <div><h1>校园自行车维修系统</h1></div>
         <el-dropdown>
           <span class="user-dropdown">
-            <el-avatar src="https://picsum.photos/id/1005/200/200" style="margin-right: 20px"/>
+            <el-avatar :src="userStore.userInfo.avatar" style="margin-right: 20px"/>
             <span>设置</span>
             <el-icon><arrow-down/></el-icon>
           </span>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item>个人设置</el-dropdown-item>
-            </el-dropdown-menu>
-            <el-dropdown-menu>
-              <el-dropdown-item>修改密码</el-dropdown-item>
+              <el-dropdown-item @click="goToPersonalSetting">个人设置</el-dropdown-item>
             </el-dropdown-menu>
             <el-dropdown-menu>
               <el-dropdown-item @click="logout">退出登录</el-dropdown-item>
@@ -125,7 +140,7 @@ const logout = () => {
 }
 
 .layout_aside {
-  width: 160px;
+  width: 180px;
   background: #f9f9f9;
   border-right: 1px solid #e5e7eb;
 }

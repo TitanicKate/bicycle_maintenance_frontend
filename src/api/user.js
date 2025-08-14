@@ -31,3 +31,7 @@ export const getAllUserService = () => {
 export const deleteBatchUserService = (ids) => {
     return request.delete('/users/batch', { data: ids })
 }
+
+export const modifyPassword = (modifyData) => {
+    return request.put('/users/password', modifyData)
+}

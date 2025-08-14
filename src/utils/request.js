@@ -1,5 +1,7 @@
 import axios from "axios";
-import {useTokenStore} from '../stores/token.js'
+import router from "../router/index.js";
+import {ElMessage} from "element-plus";
+import useUserStore from "../stores/user.js";
 
 const instance = axios.create({
     baseURL: "/api",
@@ -7,9 +9,9 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
     (config) => {
-        let tokenStore = useTokenStore()
-        if (tokenStore.token) {
-            config.headers.Authorization = "Bearer " + tokenStore.token;
+        let userStore = useUserStore()
+        if (userStore.token) {
+            config.headers.Authorization = "Bearer " + userStore.token;
         }
         return config;
     },
@@ -18,9 +20,6 @@ instance.interceptors.request.use(
     }
 );
 
-import router from "../router/index.js";
-import {ElMessage} from "element-plus";
-
 instance.interceptors.response.use(
     (response) => {
         return response;
@@ -28,7 +27,9 @@ instance.interceptors.response.use(
     (error) => {
         if (error.response.status === 401 || error.response.status === 500) {
             ElMessage.error("请先登录")
-            router.push('/login')
+            router.push('/login').then(r => {
+                useUserStore().logout()
+            })
         }
         return Promise.reject(error);
     }

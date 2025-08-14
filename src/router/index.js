@@ -1,6 +1,4 @@
 import {createRouter, createWebHistory} from "vue-router";
-
-import {useTokenStore} from '../stores/token.js'
 import Login from '../views/Login.vue'
 import Layout from "../views/Layout.vue";
 import Home from '../views/home/Home.vue'
@@ -10,6 +8,8 @@ import Resources from "../views/rouseces/Resources.vue";
 import Evaluation from "../views/evaluation/Evaluation.vue";
 import Market from "../views/market/Market.vue";
 import Announcement from "../views/announcement/Announcement.vue";
+import PersonalSetting from "../views/user/PersonalSetting.vue";
+import useUserStore from "../stores/user.js";
 
 const routes = [
     {path: '/login', component: Login},
@@ -24,7 +24,8 @@ const routes = [
             {path: '/resources', component: Resources},
             {path: '/announcement', component: Announcement},
             {path: '/evaluation', component: Evaluation},
-            {path: '/market', component: Market}
+            {path: '/market', component: Market},
+            {path: '/personalSetting', component: PersonalSetting},
         ]
     }
 ];
@@ -35,9 +36,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    let tokenStore = useTokenStore()
+    let userStore = useUserStore()
     // 假设 / 等页面需要登录后访问，未登录则跳回登录页
-    if (to.path !== '/login' && !tokenStore.token) {
+    if (to.path !== '/login' && !userStore.token) {
         next('/login');
     } else {
         next();

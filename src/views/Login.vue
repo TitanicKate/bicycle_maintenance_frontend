@@ -4,20 +4,24 @@ import {ref} from "vue";
 import {loginService, registerService} from '../api/user.js'
 import {ElMessage} from "element-plus";
 import {useRoute, useRouter} from 'vue-router'
-import {useTokenStore} from '../stores/token.js'
+import {useUserStore} from "../stores/user.js";
 
 // 是否为注册
 const isRegister = ref(false)
 const route = useRoute()
 const router = useRouter()
-const tokenStore = useTokenStore()
+const userStore = useUserStore()
 
-// 登录数据模型
+// 登录表单数据模型
 const loginData = ref({
   username: '',
   password: '',
-
   confirmPassword: ''
+})
+// 登录请求表单
+const loginForm = ref({
+  username: '',
+  password: ''
 })
 
 // 验证注册数据
@@ -75,7 +79,11 @@ const handleRegister = async () => {
     return
   }
   try {
-    let result = await registerService(loginData.value);
+    loginForm.value.username = loginData.value.username
+    // loginForm.value.password = await bcrypt.hash(loginData.value.password, 10)
+    loginForm.value.password = loginData.value.password
+    let result = await registerService(loginForm.value);
+    console.log(result)
     if (result.status === 200) {
       if (result.data.code === 200) {
         ElMessage.success(result.data.msg);
@@ -98,12 +106,16 @@ const handleLogin = async () => {
     return;
   }
   try {
-    let result = await loginService(loginData.value);
+    loginForm.value.username = loginData.value.username
+    // loginForm.value.password = await bcrypt.hash(loginData.value.password, 10)
+    loginForm.value.password = loginData.value.password
+    let result = await loginService(loginForm.value);
     if (result.status === 200) {
       if (result.data.code === 200) {
         ElMessage.success(result.data.msg);
 
-        tokenStore.setToken(result.data.token.tokenValue);
+        userStore.setToken(result.data.token.tokenValue);
+        userStore.setUserInfo(result.data.data)
 
         await router.push("/");
       } else {

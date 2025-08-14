@@ -22,4 +22,4 @@ export const useTokenStore = defineStore('token', () => {
     persist: true,
 })
 
-export default useTokenStore;
+export default useTokenStore    ;
