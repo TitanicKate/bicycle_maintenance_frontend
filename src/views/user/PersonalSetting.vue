@@ -249,7 +249,6 @@ const handleSave = async () => {
     return false
   }
   try {
-    // 模拟接口请求
     let result = await updateUserService(userinfo)
     if (result.data.code === 200) {
       ElMessage.success(result.data.message || '更新成功')

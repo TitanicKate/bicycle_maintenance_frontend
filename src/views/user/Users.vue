@@ -77,18 +77,6 @@
         <el-form-item label="用户名" prop="username">
           <el-input v-model="form.username" placeholder="请输入用户名" maxlength="20"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password" :required="!form.id">
-          <el-input
-              v-model="form.password"
-              placeholder="请输入密码"
-              type="password"
-              :show-password="true"
-              maxlength="20"
-          ></el-input>
-          <template #help>
-            <span v-if="form.id" class="text-xs text-gray-500">不输入则不修改密码</span>
-          </template>
-        </el-form-item>
         <el-form-item label="手机号" prop="phone">
           <el-input v-model="form.phone" placeholder="请输入手机号" maxlength="11"></el-input>
         </el-form-item>
@@ -468,11 +456,10 @@ const openAddDialog = () => {
 const openEditDialog = (row) => {
   dialogVisible.value = true
   // 重置表单验证
-  formRef.value.resetFields()
+  // formRef.value.resetFields()
   // 赋值表单（密码不回显）
   form.id = row.id
   form.username = row.username
-  form.password = ''
   form.phone = row.phone
   form.name = row.name
   form.role = row.role

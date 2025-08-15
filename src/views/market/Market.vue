@@ -3,9 +3,17 @@
 </script>
 
 <template>
-交易市场
+  <el-card class="content-container">
+
+
+
+  </el-card>
 </template>
 
 <style scoped>
 
+.content-container {
+  border-radius: 20px;
+  padding: 20px;
+}
 </style>

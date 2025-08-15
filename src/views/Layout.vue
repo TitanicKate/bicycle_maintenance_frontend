@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import {ArrowDown} from '@element-plus/icons-vue';
 
-import {useRouter, useRoute} from "vue-router";
+import {useRoute, useRouter} from "vue-router";
 import useUserStore from "../stores/user";
 import {ElMessage} from "element-plus";
-import {ref} from "vue";
 
 const router = useRouter();
 const route = useRoute();

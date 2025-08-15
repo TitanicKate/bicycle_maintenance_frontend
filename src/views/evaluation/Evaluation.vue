@@ -29,7 +29,7 @@
       <el-table-column prop="content" label="评价内容" align="center"></el-table-column>
       <el-table-column
           prop="createTime"
-          label="创建时间"
+          label="评价时间"
           align="center"
           width="240"
           :formatter="formatTime"
